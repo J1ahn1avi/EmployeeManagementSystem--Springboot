@@ -108,6 +108,34 @@
                     <!-- Data will be inserted here by JavaScript -->
                 </tbody>
             </table>
+            <div class="pagination-container" style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+    <div class="pagination-info">
+        Showing <span id="pageStart">0</span> to <span id="pageEnd">0</span> of <span id="totalRecords">0</span> employees
+    </div>
+    <div class="pagination-buttons" style="display: flex; gap: 10px;">
+        <button onclick="previousPage()" id="prevBtn" class="btn-secondary" style="padding: 8px 15px;" disabled>
+            <i class="fas fa-chevron-left"></i> Previous
+        </button>
+        <span style="padding: 8px 15px;">Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
+        <button onclick="nextPage()" id="nextBtn" class="btn-secondary" style="padding: 8px 15px;">
+            Next <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+    <div class="page-size-selector">
+        <label>Show: </label>
+        <select id="pageSize" onchange="changePageSize()" style="padding: 8px; border-radius: 5px;">
+            <option value="5">5 per page</option>
+            <option value="10" selected>10 per page</option>
+            <option value="20">20 per page</option>
+            <option value="50">50 per page</option>
+        </select>
+    </div>
+</div>
+<div style="margin-top: 20px; text-align: right;">
+    <a href="dashboard.html" class="btn-primary" style="text-decoration: none; display: inline-block;">
+        <i class="fas fa-chart-line"></i> View Analytics Dashboard
+    </a>
+</div>
         </div>
     </div>
 

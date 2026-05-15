@@ -339,3 +339,167 @@ window.onclick = function (event) {
     closeModal();
   }
 };
+const API_BASE_URL = 'http://localhost:8080/api/employees';
+
+// Pagination variables
+let currentPage = 0;
+let pageSize = 10;
+let totalPages = 1;
+let totalElements = 0;
+let sortBy = 'id';
+let sortOrder = 'asc';
+
+// Load employees with pagination
+async function loadEmployees() {
+    showLoading();
+    try {
+        const url = `${API_BASE_URL}/paginated?page=${currentPage}&size=${pageSize}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+        const response = await fetch(url);
+        
+        if (!response.ok) throw new Error('Failed to fetch employees');
+        
+        const pageData = await response.json();
+        
+        totalPages = pageData.totalPages;
+        totalElements = pageData.totalElements;
+        currentPage = pageData.number;
+        
+        displayEmployees(pageData.content);
+        updatePaginationControls();
+        
+    } catch (error) {
+        console.error('Error:', error);
+        showError('Failed to load employees');
+    } finally {
+        hideLoading();
+    }
+}
+
+// Display employees in table (updated for pagination)
+function displayEmployees(employees) {
+    const tbody = document.getElementById('employeeTableBody');
+    
+    if (!employees || employees.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">No employees found</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = employees.map(emp => `
+        <tr>
+            <td>${emp.id}</td>
+            <td>${escapeHtml(emp.firstName || '')}</td>
+            <td>${escapeHtml(emp.lastName || '')}</td>
+            <td>${escapeHtml(emp.email || '')}</td>
+            <td>${escapeHtml(emp.phone || '-')}</td>
+            <td>${escapeHtml(emp.department || '-')}</td>
+            <td>${escapeHtml(emp.position || '-')}</td>
+            <td>${emp.salary ? '$' + emp.salary.toLocaleString() : '-'}</td>
+            <td>${emp.hireDate || '-'}</td>
+            <td>
+                <button class="edit-btn" onclick="editEmployee(${emp.id})">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+                <button class="delete-btn" onclick="deleteEmployee(${emp.id})">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Pagination functions
+function updatePaginationControls() {
+    document.getElementById('currentPage').textContent = currentPage + 1;
+    document.getElementById('totalPages').textContent = totalPages;
+    document.getElementById('totalRecords').textContent = totalElements;
+    
+    const startRecord = currentPage * pageSize + 1;
+    const endRecord = Math.min((currentPage + 1) * pageSize, totalElements);
+    document.getElementById('pageStart').textContent = totalElements === 0 ? 0 : startRecord;
+    document.getElementById('pageEnd').textContent = endRecord;
+    
+    document.getElementById('prevBtn').disabled = currentPage === 0;
+    document.getElementById('nextBtn').disabled = currentPage >= totalPages - 1;
+}
+
+function previousPage() {
+    if (currentPage > 0) {
+        currentPage--;
+        loadEmployees();
+    }
+}
+
+function nextPage() {
+    if (currentPage < totalPages - 1) {
+        currentPage++;
+        loadEmployees();
+    }
+}
+
+function changePageSize() {
+    pageSize = parseInt(document.getElementById('pageSize').value);
+    currentPage = 0; // Reset to first page
+    loadEmployees();
+}
+
+// Keep your existing functions (addEmployee, editEmployee, updateEmployee, deleteEmployee)
+// ... all your existing CRUD functions remain the same ...
+
+// Modify search to work with pagination
+async function searchEmployees() {
+    const searchTerm = document.getElementById('searchInput').value.trim();
+    
+    if (!searchTerm) {
+        loadEmployees();
+        return;
+    }
+    
+    showLoading();
+    try {
+        const response = await fetch(`${API_BASE_URL}/search?name=${encodeURIComponent(searchTerm)}`);
+        if (!response.ok) throw new Error('Search failed');
+        const employees = await response.json();
+        displayEmployees(employees);
+        // Hide pagination when searching
+        document.querySelector('.pagination-container').style.display = 'none';
+    } catch (error) {
+        console.error('Error:', error);
+    } finally {
+        hideLoading();
+    }
+}
+
+// Modify filter to work with pagination
+async function filterByDepartment() {
+    const department = document.getElementById('departmentFilter').value;
+    
+    if (!department) {
+        loadEmployees();
+        document.querySelector('.pagination-container').style.display = 'flex';
+        return;
+    }
+    
+    showLoading();
+    try {
+        const response = await fetch(`${API_BASE_URL}/department/${encodeURIComponent(department)}`);
+        if (!response.ok) throw new Error('Filter failed');
+        const employees = await response.json();
+        displayEmployees(employees);
+        document.querySelector('.pagination-container').style.display = 'none';
+    } catch (error) {
+        console.error('Error:', error);
+    } finally {
+        hideLoading();
+    }
+}
+
+// Reset search/filter
+function resetFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('departmentFilter').value = '';
+    document.querySelector('.pagination-container').style.display = 'flex';
+    loadEmployees();
+}
+
+// Add reset button to search section
+// Add this to your search-section in HTML if desired
