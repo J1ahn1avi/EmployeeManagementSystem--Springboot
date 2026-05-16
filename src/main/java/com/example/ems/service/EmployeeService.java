@@ -1,6 +1,6 @@
 package com.example.ems.service;
 
-import java.awt.print.Pageable;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -22,4 +22,5 @@ public interface EmployeeService {
 	DashboardStats getDashboardStats();
     List<DepartmentCount> getDepartmentCounts();
     SalaryStats getSalaryStats();
+	
 }
