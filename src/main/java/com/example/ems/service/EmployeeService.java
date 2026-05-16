@@ -16,7 +16,7 @@ public interface EmployeeService {
 	List<Employee> getEmployeesByDepartment(String department);
 	List<Employee> searchEmployees(String name);
 	//pageination 
-	Page<Employee> getEmployeesPaginated(Pageable pageable);
+	Page<Employee> getEmployeesPaginated(org.springframework.data.domain.Pageable pageable);
 	
 	//dashboard
 	DashboardStats getDashboardStats();
